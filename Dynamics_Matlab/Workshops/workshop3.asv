@@ -1,0 +1,20 @@
+syms a b c d f adot bdot cdot ddot fdot
+diff(a)
+
+w10_1 = [0;0;adot];
+w21_2 = [0;bdot;0];
+w32_3 = [0;-cdot;0];
+w43_4 = [0;-ddot;0];
+w54_5 = [-fdot;0;0];
+
+R01 = [cos(a) -sin(a) 0 ; sin(a) cos(a) 0 ; 0 0 1];
+R12 = [cos(b) 0 sin(b); 0 1 0; -sin(b) 0 cos(b)];
+R23 = [cos(c) 0 -sin(c); 0 1 0; sin(c) 0 cos(c)];
+R34 = [cos(d) 0 -sin(d); 0 1 0; sin(d) 0 cos(d)];
+R45 = [1 0 0 ; 0 cos(f) sin(f); 0 -sin(f) cos(f)];
+
+w10_3 = simplify(transpose(R12*R23)*w10_1)
+w20_3 = simplify(w10_3 + transpose(R23)*w21_2)
+w30_3 = w20_3 + w32_3
+w40_3 = simplify(R34*w43_4 + w30_3)
+w50_3 = R34*R45*
