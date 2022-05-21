@@ -1,0 +1,165 @@
+clc
+clear
+syms m1 L vx1 vy1 vz1 wx1 wy1 wz1 %triangle
+syms m2 R h v vx2 vy2 vz2 wx2 wy2 wz2 %cone
+syms t theta_ e F_hat
+
+% Define frames and rotation matrices
+R12 = [1 0 0; 0 cos(theta_) -sin(theta_); 0 sin(theta_) cos(theta_)];
+R21 = R12.';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% Impulse-Momentum equations Triangle%%%%%%%
+
+%%%% BEFORE Collision %%%%
+%Define position vectors and velocities
+%Positions
+auxRotation45deg = [cos(pi/4) -sin(pi/4) 0;
+            sin(pi/4) cos(pi/4) 0;
+            0 0 1];
+
+rOG1_1 =  auxRotation45deg * [2/3*L*sin(pi/4); 0; 0];
+rGC1_1 = [-1/6*L; -1/6*L; 0];
+rOC1_1 = rOG1_1 + rGC1_1;
+
+%Velocities
+w1_1_pre = [0;0;0];
+rOG1_1_dot_pre = [0;0;0];
+rGC1_1_dot_pre = [0;0;0];
+rOC1_1_dot_pre = [0;0;0];
+
+%Define inertia tensors 
+IGtriangle_1 = m1*[(2*L^2)/36 (-L^2)/36 0;
+                   (-L^2)/36 (2*L^2)/36 0;
+                   0 0 (2*L^2)/18];
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% AFTER collision %%%%%
+rOG1_1_dot_plus = [vx1;vy1;vz1];
+w1_1_plus = [wx1;wy1;wz1];
+rGC1_1_dot_plus = diff(rGC1_1, t) + cross(w1_1_plus, rGC1_1);
+
+% WHY DIFFERENT
+rOC1_1_dot_plus = rOG1_1_dot_plus + rGC1_1_dot_plus;
+%rOC1_1_dot_plus = diff(rOC1_1, t) + cross(w1_1_plus, rOC1_1);
+
+
+%Collision impulsive force vectors in frame {1}.
+%Use declared variable F_hat
+F_impulse_1 = [0;0;-F_hat];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 1) Find the linear part of the Impulse-Momentum equations for
+% the triangle plate in frame {1}.
+
+% Left side of the equation.(Test)
+% % Varible name: sumF1_1_hat
+sumF1_1_hat = F_impulse_1;
+
+% Right side of the equation.
+% Varible name: deltaP_triangle (Test)
+deltaP_triangle = m1*(rOG1_1_dot_plus - rOG1_1_dot_pre);
+
+%Linear IM equations tringle 
+lin_IM_triangle = sumF1_1_hat == deltaP_triangle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 2) Find the angular part of the Impulse-Momentum equations for
+% the triangle plate in frame {1}.
+
+% Left side of the equation.(Test)
+% Varible name: sumMG11_1_hat
+sumMG11_1_hat = cross(rGC1_1, F_impulse_1);
+
+%Right side of the equation.
+% Varible name: deltaH_triangle (Test)
+deltaH_triangle = IGtriangle_1*(w1_1_plus - w1_1_pre);
+
+%Angular IM equations triangle 
+ang_IM_triangle = sumMG11_1_hat == deltaH_triangle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% Impulse-Momentum equations Cone %%%%%%%
+
+%%%% BEFORE Collision %%%%
+%Define position vectors and velocities
+%Positions
+rOG2_2 = R21*[L/6; L/6; 0] + 3/4*[0; h; 0];
+rGC2_2 = [0; -3/4*h; 0];
+rOC2_2 = rOG2_2 + rGC2_2;
+
+%Velocities
+w2_2_pre = [0;0;0];
+rOG2_2_dot_pre = [0; -v; 0];
+rOC2_2_dot_pre = [0; -v; 0];
+
+%Define inertia tensors
+%IGcone_2 = [3/5*m2*h^2 + 3/20*m2*R^2 0 0;
+%            0 3/10*m2*R^2 0;
+%            0 0 3/5*m2*h^2 + 3/20*m2*R^2];
+IGcone_2 = [(3/80)*m2*(4*R^2+h^2) 0 0; 
+             0 (3/10)*m2*R^2 0; 
+             0 0 (3/80)*m2*(4*R^2+h^2)];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% AFTER collision %%%%%
+rOG2_2_dot_plus = [vx2;vy2;vz2];
+w2_2_plus = [wx2;wy2;wz2];
+
+rGC2_2_dot_plus = diff(rGC2_2, t) + cross(w2_2_plus, rGC2_2);
+
+% WHY ARE THESE DIFFERENT
+rOC2_2_dot_plus = rOG2_2_dot_plus + rGC2_2_dot_plus;
+%rOC2_2_dot_plus = diff(rOC2_2, t) + cross(w2_2_plus, rOC2_2);
+
+%Force vector in frame {2} 
+%Use declared variable F_hat 
+F_impulse_2 = R21*[0;0;F_hat];
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 3) Find the linear part of the Impulse-Momentum equations for
+% the cone in frame {2}.
+
+% Left side of the equation.(Test)
+% Varible name: sumF2_2_hat_cone
+sumF2_2_hat_cone = F_impulse_2;
+
+% Right side of the equation.
+% Varible name: deltaP_cone (Test)
+deltaP_cone = m2*(rOG2_2_dot_plus - rOG2_2_dot_pre);
+
+%Linear IM equations tringle 
+lin_IM_cone = sumF2_2_hat_cone == deltaP_cone
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 4) Find the angular part of the Impulse-Momentum equations for
+% the cone in frame {2}.
+
+% Left side of the equation.(Test)
+% Varible name: sumMG22_2_hat
+sumMG22_2_hat = cross(rGC2_2, F_impulse_2);
+
+%Right side of the equation.
+% Varible name: deltaH_cone (Test)
+deltaH_cone = IGcone_2*(w2_2_plus - w2_2_pre);
+
+%Angular IM equations cone (Give expression)
+ang_IM_cone = sumMG22_2_hat == deltaH_cone
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Question 5) Determine the unknowns of the system. (Test)
+% The tests are run for all unknowns.
+% You can use "solve" to get them all at the same time.
+% The unknowns must be renamed in order for the tests to work.
+%Variable name and format: SolColl=[vx1_sol,vy1_sol,vz1_sol,wx1_sol,wy1_sol,wz1_sol,vx2_sol,vy2_sol,vz2_sol,wx2_sol,wy2_sol,wz2_sol,F_hat_sol]
+
+rOC2_1_dot_plus = R12*rOC2_2_dot_plus;
+rOC2_1_dot_pre = R12*rOC2_2_dot_pre;
+
+COR_equation = e == - (rOC1_1_dot_plus(3) - rOC2_1_dot_plus(3))/(rOC1_1_dot_pre(3) - rOC2_1_dot_pre(3));
+S = solve([lin_IM_triangle; ang_IM_triangle; lin_IM_cone; ang_IM_cone; COR_equation],[vx1,vy1,vz1,wx1,wy1,wz1,vx2,vy2,vz2,wx2,wy2,wz2,F_hat])
+SolColl = [S.vx1,S.vy1,S.vz1,S.wx1,S.wy1,S.wz1,S.vx2,S.vy2,S.vz2,S.wx2,S.wy2,S.wz2,S.F_hat]
+
+

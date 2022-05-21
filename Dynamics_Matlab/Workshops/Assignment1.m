@@ -46,11 +46,10 @@ rOJ_1 = R10*rOG_0 + rGA_1 + R12*R2f*rAJ_f
 % Q7 What is the vector from the origin of the inertial frame {0} (point O)  
 % to a point P in the perimeter of the right wheel expressed in frame {1} if rOG_0=[x;y;H] and rCP_r=[0;0;r]? 
 % Variable Name: rOP_1
-R1r = [cos(phi_C) 0 sin(phi_C); 0 1 0; -sin(phi_C) 0 cos(phi_C)];
 rCP_r = [0 ; 0; r];
+R1r = [cos(phi_C) 0 sin(phi_C); 0 1 0; -sin(phi_C) 0 cos(phi_C)];
 rGC_1 = [-a; -b; r-H];
 rOP_1 = R10*rOG_0 + rGC_1 + R1r*rCP_r
-
 
 % Q8 What is the vector from point O to the instantaneous contact point between the left wheel and the ground (point Mcontact) in frame {1}?
 % variable name: rOM_1
@@ -58,6 +57,7 @@ rOG_0=[x;y;H];
 rBM_v = [0;0;r];  
 rGB_1 = [-a; b; r-H];
 rOM_1 = R10*rOG_0 + rGB_1 + R1v*rBM_v
+%rOM_1 = subs(rOM_1,phi_B,pi)
 
 
 % Q9 What is the absolute linear velocity of a point J in the perimeter of the front wheel in frame{1}?
@@ -69,5 +69,6 @@ rOJ_1_dot = diff(rOJ_1, t) + cross(w10_1, rOJ_1)
 % Variable Name: rON_1_dot
 rBN_v = [0 ; 0; r];
 rON_1 = R10*rOG_0 + rGB_1 + R1v*rBN_v;
-rON_1_dot = diff(rON_1, t) + cross(w10_1, rOM_1)
+rON_1_dot = diff(rON_1, t) + cross(w10_1, rON_1)
+
 
